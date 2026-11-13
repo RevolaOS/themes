@@ -77,7 +77,7 @@ A later record for the same id and asset replaces an earlier one.
 | `width`, `height`, `stride` | Pixel size and row bytes |
 | `palette_colors` | Palette entries, 0 without one |
 | `bytes` | The decoded BMap, header included |
-| `resident` | Whether the extension keeps it in RAM |
+| `preload` | `always`, `optional` or `never`: whether the core reads it into RAM with the extension's main module (`preload` in the manifest) |
 
 `rvt catalog list --extensions [--group <id>]` prints one line per bitmap; `rvt catalog show <id>/<asset>` every field and the two hashes. [Extension bitmaps](extension-bitmaps.md) is the same list as a page.
 

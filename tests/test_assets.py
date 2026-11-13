@@ -79,7 +79,7 @@ def record(identifier, asset, width, height, menu=False, fmt=None, colors=0):
         "bytes": assets.HEADER.size
         + (4 + 4 * colors if colors else 0)
         + stride * height,
-        "resident": False,
+        "preload": "optional" if menu else "never",
     }
 
 

@@ -62,8 +62,9 @@ RECORD_KEYS = (
     "depth",
     "palette_colors",
     "bytes",
-    "resident",
+    "preload",
 )
+PRELOAD = ("always", "optional", "never")
 
 
 def owner_hash(identifier: str) -> int:
@@ -89,9 +90,10 @@ def check_record(record: dict, where: str) -> dict:
         record["asset"]
     ):
         fail(where, f"asset must match {ASSET_PATTERN.pattern}")
-    for key in ("menu", "resident"):
-        if not isinstance(record[key], bool):
-            fail(where, f"{key} is true or false")
+    if not isinstance(record["menu"], bool):
+        fail(where, "menu is true or false")
+    if record["preload"] not in PRELOAD:
+        fail(where, f"preload is one of {', '.join(PRELOAD)}")
     for key in (
         "format",
         "width",
