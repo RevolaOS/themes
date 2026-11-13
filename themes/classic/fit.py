@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Snap Classic's own PNGs (the Now Playing idle battery and the background)
-to the palettes of the bitmaps they replace, with the compiler's palette
-fitting, so the committed art is what the iPod shows and the compiler has
+"""Snap Classic's own PNG, the background, to the palette of the bitmap it
+replaces, with the compiler's palette fitting, so the committed art is what the iPod shows and the compiler has
 nothing to reduce.
 
     python3 themes/classic/fit.py [--preview DIR]
