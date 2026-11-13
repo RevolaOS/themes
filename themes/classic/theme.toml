@@ -1,0 +1,9 @@
+schema = 1
+id = "classic"
+name = "Classic"
+
+[dark.derive]
+"Media_NowPlayingIcon_*Black_Image" = { kind = "invert" }
+"No_Content_Albums_Small_Image" = { kind = "alias", source = "Media_AlbumsProxy_Image" }
+"NowPlaying_White_Pause_Image" = { kind = "alias", source = "NowPlaying_Black_Pause_Image" }
+"NowPlaying_White_Play_Image" = { kind = "alias", source = "NowPlaying_Black_Play_Image" }
