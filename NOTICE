@@ -1,0 +1,24 @@
+RevolaOS
+Copyright (C) 2026 The RevolaOS Authors. GPL-3.0-only.
+The authors are the contributors recorded in each repository's git history.
+
+Derived from RepriseOS (https://github.com/lgreitis/osos-lab), forked at
+commit 8fc840d591f48aef8b7a0ff8ff20c35cb0d91475, November 2026. Later
+upstream changes are ported individually; each port names its upstream
+commit in the commit message.
+Copyright (C) lgreitis and RepriseOS contributors. GPL-3.0-only.
+Modified by the RevolaOS authors since 2026-11-08.
+
+Files that carry an "Adapted from" or copyright header keep that header.
+
+Third-party work included or built upon:
+
+- Cupertino Icons (https://github.com/flutter/packages): the glyphs of the
+  Flat theme's artwork. MIT, see themes/flat/LICENSE.cupertino-icons.
+- Inter (https://github.com/rsms/inter): the numerals of the Flat theme's
+  artwork. SIL OFL 1.1, see themes/flat/LICENSE.inter.
+- The Flat theme's design follows "My own iPodOS edits" by u/DrawingCompetitive76
+  on r/IpodClassic (https://www.reddit.com/r/IpodClassic/comments/1x2856t/my_own_ipodos_edits/).
+
+Apple firmware is never included. The catalog records names, sizes, offsets
+and checksums of Apple's bitmaps, never their pixels.
