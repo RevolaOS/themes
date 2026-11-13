@@ -1,0 +1,9 @@
+kind = "recolor"
+from_other = true
+
+[map]
+"#d1d1d618" = "#3a3a3c18"
+"#d1d1d69b" = "#3a3a3c9b"
+"#d1d1d6e0" = "#3a3a3ce0"
+"#d1d1d6e7" = "#3a3a3ce7"
+"#d1d1d6ff" = "#3a3a3cff"

@@ -1,0 +1,339 @@
+# Written by render.py from its tables; edit the script, not this file.
+schema = 1
+id = "flat"
+name = "Flat"
+author = "RevolaOS"
+version = "1.0"
+
+[light]
+menu_covers_default = false
+
+[light.colors]
+background = "#ffffff"
+text = "#000000"
+accent_fill = "#ff2d55"
+accent_text = "#ff2d55"
+on_accent = "#ffffff"
+selection = "#ff2d55"
+cover_border = "#c7c7cc"
+icon_tint = "#ff2d55"
+
+[light.accents]
+blue = "#007aff"
+graphite = "#8e8e93"
+green = "#34c759"
+orange = "#ff9500"
+pink = "#ff2d55"
+purple = "#af52de"
+red = "#ff3b30"
+teal = "#5ac8fa"
+yellow = { accent = "#ffcc00", on_accent = "#000000" }
+
+[light.rendering]
+flat_selection = true
+flat_now_playing = true
+flat_icons = true
+
+[light.tint]
+icon_tint = [
+    "Media_*Proxy_Image",
+    "MainMenu_*_Image",
+    "No_Content_*_Preview_Image",
+    "NowPlaying_Classic_*_Image",
+    "Settings_Backlight*_Image",
+    "Settings_EQ_*_Image",
+    "Settings_Repeat*_Image",
+    "AddressViewer_Preview_Image",
+    "Alarms_Clock_Static_Image",
+    "Clock_CenterCap_Image",
+    "Extras_Games_Preview_Image",
+    "Games_Proxy_Image",
+    "LockScreen_Padlock_Image",
+    "Media_Genius_Large_Image",
+    "Media_NowPlayingIcon_Black_Image",
+    "Media_NowPlayingIcon_Playlist_Black_Image",
+    "Media_OTGPlaylist_Image",
+    "Notes_Preview_Image",
+    "NowPlaying_Large_Shuffle_Image",
+    "Settings_About_Logo_Image",
+    "Settings_AppleLogoPreview_Image",
+    "Settings_AppleLogo_Image",
+    "Settings_Audiobooks_Image",
+    "Settings_Brightness_Image",
+    "Settings_ClickerOff_Image",
+    "Settings_ClickerOn_Image",
+    "Settings_Legal_Image",
+    "Settings_MainMenu_CheckmarkBlack_Image",
+    "Settings_MainMenu_Image",
+    "Settings_Radio_Image",
+    "Settings_Reset_Image",
+    "Settings_ShuffleOff_Image",
+    "Settings_ShuffleSongs_Image",
+    "Settings_SortBy_Image",
+    "Settings_SoundCheckOff_Image",
+    "Settings_SoundCheckOn_Image",
+    "Settings_VolumeLimit_Image",
+    "Speakers_Icon_Image",
+]
+background = [
+    "Background_LightBlue_Image",
+    "NowPlaying_Chaptermark_Image",
+    "NowPlaying_StatusBar_Image",
+    "Settings_About_Band_Image",
+    "StatusBarWhite_Background_Image",
+]
+text = [
+    "NowPlaying_White_*_Image",
+    "Playlist_*_Icon",
+    "StatusBar*_Battery_Image_[3-9]",
+    "StatusBar*_Battery_Image_[12][0-9]",
+    "Calendar_Alarm",
+    "Calendar_Flag",
+    "Calendar_Small_Alarm",
+    "ChargingMode_Image_ToggleCharged",
+    "ChargingMode_Image_ToggleCharging",
+    "Genius_Slider_Icon_Image",
+    "Media_Genius_Normal_Image",
+    "Media_Genius_Refresh_Image",
+    "NowPlaying_Black_FF_Image",
+    "NowPlaying_Black_Pause_Image",
+    "NowPlaying_Black_Play_Image",
+    "NowPlaying_Black_Rew_Image",
+    "NowPlaying_Genius_Icon",
+    "NowPlaying_Repeat_Image",
+    "NowPlaying_Repeat_Once_Image",
+    "NowPlaying_Shuffle_Image",
+    "NowPlaying_Small_White_Star_Image",
+    "NowPlaying_Star_Image",
+    "Page_White_Active_Image",
+    "Settings_About_Bubble_Selected_Image",
+    "Settings_Language_Image",
+    "Settings_VolumeLimitArrow_Image",
+    "StatusBarBlack_Lock_Image",
+    "StatusBarWhite_Lock_Image",
+    "StatusBarWhite_PlayStatus_Image",
+    "Stopwatch_SmallPause_Image",
+    "Stopwatch_SmallPlay_Image",
+    "System_Overlay_BrightnessLess_Image",
+    "System_Overlay_BrightnessMore_Image",
+    "System_Overlay_VolumeLeft_Image",
+    "System_Overlay_VolumeRight_Image",
+    "WorldClock_Map_Image",
+]
+accent_fill = [
+    "CapacityView_Simple_Fill*_Image",
+    "NowPlaying_ProgressFill_*_Image",
+    "Genius_Slider_Endcap_Image",
+    "Genius_Slider_Fill_Image",
+    "NowPlaying_Blue_Dot_Image",
+    "NowPlaying_Blue_Star_Image",
+    "NowPlaying_Large_Blue_Star_Image",
+    "NowPlaying_ProgressBar_Active_Fill_Image",
+    "NowPlaying_ProgressBar_Inactive_Fill_Image",
+    "NowPlaying_ProgressBar_Scrub_Image",
+    "Podcasts_new_item_Image",
+    "Podcasts_new_item_video_Image",
+]
+on_accent = [
+    "Media_Genius_Refresh_Hi_Image",
+    "Media_Genius_Selected_Image",
+    "Media_NowPlayingIcon_Playlist_White_Image",
+    "Media_NowPlayingIcon_White_Image",
+    "Media_VideoStatusIcon_White_Image",
+    "Playlist_Genius_Icon_Hi",
+    "Podcasts_new_item_video_white_Image",
+    "Podcasts_new_item_white_Image",
+    "Podcasts_video_white_solo_Image",
+    "Settings_MainMenu_CheckmarkWhite_Image",
+    "System_Submenu_Image",
+]
+selection = [
+    "OptionBar_*_Thumb_*_Image",
+    "System_ActiveButton*_Image",
+    "Alarms_Timer_Time_Panel_Focus",
+    "Calendar_Hilite_Cell",
+    "DateTimePicker_Selection",
+    "LockScreen_TumblerFocus_Image",
+    "Settings_DateTime_Capsule_Hilite",
+]
+
+[dark]
+menu_covers_default = false
+
+[dark.colors]
+background = "#1c1c1e"
+text = "#ffffff"
+accent_fill = "#ff375f"
+accent_text = "#ff375f"
+on_accent = "#ffffff"
+selection = "#ff375f"
+cover_border = "#3a3a3c"
+icon_tint = "#ff375f"
+
+[dark.accents]
+blue = "#0a84ff"
+graphite = "#98989d"
+green = "#30d158"
+orange = "#ff9f0a"
+pink = "#ff375f"
+purple = "#bf5af2"
+red = "#ff453a"
+teal = "#64d2ff"
+yellow = { accent = "#ffd60a", on_accent = "#000000" }
+
+[dark.rendering]
+flat_selection = true
+flat_now_playing = true
+flat_icons = true
+
+[dark.tint]
+icon_tint = [
+    "Media_*Proxy_Image",
+    "MainMenu_*_Image",
+    "No_Content_*_Preview_Image",
+    "NowPlaying_Classic_*_Image",
+    "Settings_Backlight*_Image",
+    "Settings_EQ_*_Image",
+    "Settings_Repeat*_Image",
+    "AddressViewer_Preview_Image",
+    "Alarms_Clock_Static_Image",
+    "Clock_CenterCap_Image",
+    "Extras_Games_Preview_Image",
+    "Games_Proxy_Image",
+    "LockScreen_Padlock_Image",
+    "Media_Genius_Large_Image",
+    "Media_NowPlayingIcon_Black_Image",
+    "Media_NowPlayingIcon_Playlist_Black_Image",
+    "Media_OTGPlaylist_Image",
+    "Notes_Preview_Image",
+    "NowPlaying_Large_Shuffle_Image",
+    "Settings_About_Logo_Image",
+    "Settings_AppleLogoPreview_Image",
+    "Settings_AppleLogo_Image",
+    "Settings_Audiobooks_Image",
+    "Settings_Brightness_Image",
+    "Settings_ClickerOff_Image",
+    "Settings_ClickerOn_Image",
+    "Settings_Legal_Image",
+    "Settings_MainMenu_CheckmarkBlack_Image",
+    "Settings_MainMenu_Image",
+    "Settings_Radio_Image",
+    "Settings_Reset_Image",
+    "Settings_ShuffleOff_Image",
+    "Settings_ShuffleSongs_Image",
+    "Settings_SortBy_Image",
+    "Settings_SoundCheckOff_Image",
+    "Settings_SoundCheckOn_Image",
+    "Settings_VolumeLimit_Image",
+    "Speakers_Icon_Image",
+]
+background = [
+    "Background_LightBlue_Image",
+    "NowPlaying_Chaptermark_Image",
+    "NowPlaying_StatusBar_Image",
+    "Settings_About_Band_Image",
+    "StatusBarWhite_Background_Image",
+]
+text = [
+    "NowPlaying_White_*_Image",
+    "Playlist_*_Icon",
+    "StatusBar*_Battery_Image_[3-9]",
+    "StatusBar*_Battery_Image_[12][0-9]",
+    "Calendar_Alarm",
+    "Calendar_Flag",
+    "Calendar_Small_Alarm",
+    "ChargingMode_Image_ToggleCharged",
+    "ChargingMode_Image_ToggleCharging",
+    "Genius_Slider_Icon_Image",
+    "Media_Genius_Normal_Image",
+    "Media_Genius_Refresh_Image",
+    "NowPlaying_Black_FF_Image",
+    "NowPlaying_Black_Pause_Image",
+    "NowPlaying_Black_Play_Image",
+    "NowPlaying_Black_Rew_Image",
+    "NowPlaying_Genius_Icon",
+    "NowPlaying_Repeat_Image",
+    "NowPlaying_Repeat_Once_Image",
+    "NowPlaying_Shuffle_Image",
+    "NowPlaying_Small_White_Star_Image",
+    "NowPlaying_Star_Image",
+    "Page_White_Active_Image",
+    "Settings_About_Bubble_Selected_Image",
+    "Settings_Language_Image",
+    "Settings_VolumeLimitArrow_Image",
+    "StatusBarBlack_Lock_Image",
+    "StatusBarWhite_Lock_Image",
+    "StatusBarWhite_PlayStatus_Image",
+    "Stopwatch_SmallPause_Image",
+    "Stopwatch_SmallPlay_Image",
+    "System_Overlay_BrightnessLess_Image",
+    "System_Overlay_BrightnessMore_Image",
+    "System_Overlay_VolumeLeft_Image",
+    "System_Overlay_VolumeRight_Image",
+    "WorldClock_Map_Image",
+]
+accent_fill = [
+    "CapacityView_Simple_Fill*_Image",
+    "NowPlaying_ProgressFill_*_Image",
+    "Genius_Slider_Endcap_Image",
+    "Genius_Slider_Fill_Image",
+    "NowPlaying_Blue_Dot_Image",
+    "NowPlaying_Blue_Star_Image",
+    "NowPlaying_Large_Blue_Star_Image",
+    "NowPlaying_ProgressBar_Active_Fill_Image",
+    "NowPlaying_ProgressBar_Inactive_Fill_Image",
+    "NowPlaying_ProgressBar_Scrub_Image",
+    "Podcasts_new_item_Image",
+    "Podcasts_new_item_video_Image",
+]
+on_accent = [
+    "Media_Genius_Refresh_Hi_Image",
+    "Media_Genius_Selected_Image",
+    "Media_NowPlayingIcon_Playlist_White_Image",
+    "Media_NowPlayingIcon_White_Image",
+    "Media_VideoStatusIcon_White_Image",
+    "Playlist_Genius_Icon_Hi",
+    "Podcasts_new_item_video_white_Image",
+    "Podcasts_new_item_white_Image",
+    "Podcasts_video_white_solo_Image",
+    "Settings_MainMenu_CheckmarkWhite_Image",
+    "System_Submenu_Image",
+]
+selection = [
+    "OptionBar_*_Thumb_*_Image",
+    "System_ActiveButton*_Image",
+    "Alarms_Timer_Time_Panel_Focus",
+    "Calendar_Hilite_Cell",
+    "DateTimePicker_Selection",
+    "LockScreen_TumblerFocus_Image",
+    "Settings_DateTime_Capsule_Hilite",
+]
+
+[dark.derive]
+"BigDaisyPetal?" = { kind = "alias", from_other = true }
+"Caption_*_Image" = { kind = "alias", from_other = true }
+"Clock_*_Image_*" = { kind = "alias", from_other = true }
+"Clock_Small*_Image" = { kind = "alias", from_other = true }
+"NowPlaying_Idle_Battery_[1-7]_Image" = { kind = "alias", from_other = true }
+"NowPlaying_Rental_Warning_Overlay_*" = { kind = "alias", from_other = true }
+"Settings_BasePanel*_Image" = { kind = "alias", from_other = true }
+"Stopwatch_*_Image_*" = { kind = "alias", from_other = true }
+"System_NormalButton*_Image" = { kind = "alias", from_other = true }
+"System_QuickScroll*_Image" = { kind = "alias", from_other = true }
+Clock_Shadow_Image = { kind = "alias", from_other = true }
+GeniusMixes_Background_Image = { kind = "alias", from_other = true }
+Media_VideoStatusIcon_Image = { kind = "alias", from_other = true }
+NowPlaying_Black_Volume_Locked_Image = { kind = "alias", from_other = true }
+NowPlaying_Dot_Image = { kind = "alias", from_other = true }
+NowPlaying_Paused_Image = { kind = "alias", from_other = true }
+NowPlaying_ProgressBar_Growth_Image = { kind = "alias", from_other = true }
+NowPlaying_ProgressBar_LeftEndcap_Image = { kind = "alias", from_other = true }
+NowPlaying_ProgressBar_RightEndcap_Image = { kind = "alias", from_other = true }
+NowPlaying_Scrub_Image = { kind = "alias", from_other = true }
+NowPlaying_Small_Grey_Star_Image = { kind = "alias", from_other = true }
+Page_White_Inactive_Image = { kind = "alias", from_other = true }
+Podcasts_spacer_Image = { kind = "alias", from_other = true }
+Podcasts_video_solo_Image = { kind = "alias", from_other = true }
+Settings_About_Bubble_Deselected_Image = { kind = "alias", from_other = true }
+StatusBarBlack_Background_Image = { kind = "alias", from_other = true }
+Stopwatch_Caps_Image = { kind = "alias", from_other = true }

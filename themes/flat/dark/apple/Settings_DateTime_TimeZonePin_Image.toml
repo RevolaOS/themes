@@ -1,0 +1,13 @@
+kind = "recolor"
+from_other = true
+
+[map]
+"#ff3b3003" = "#ff453a03"
+"#ff3b300e" = "#ff453a0e"
+"#ff3b3035" = "#ff453a35"
+"#ff3b3066" = "#ff453a66"
+"#ff3b30b2" = "#ff453ab2"
+"#ff3b30f9" = "#ff453af9"
+"#ff3b30fc" = "#ff453afc"
+"#ff3b30ff" = "#ff453aff"
+"#94898dff" = "#948a8eff"
