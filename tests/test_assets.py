@@ -84,12 +84,14 @@ def record(identifier, asset, width, height, menu=False, fmt=None, colors=0):
 
 
 def table(*entries):
-    """An extension bitmap table from (owner, asset, kind, payload[, length])."""
+    """An extension bitmap table from (owner, asset, kind, payload[, decoded
+    [, stored]]); decoded defaults to a Settings icon, stored to the payload."""
     data = b""
     for owner, name, kind, payload, *rest in entries:
-        length = rest[0] if rest else len(payload)
-        data += rvtfile.EXTENSION_BITMAP.pack(owner, name, kind, length) + payload
-        data += bytes(-len(data) % 4)
+        decoded = rest[0] if rest else MENU_BYTES
+        stored = rest[1] if len(rest) > 1 else len(payload)
+        data += rvtfile.EXTENSION_BITMAP.pack(owner, name, kind, stored, decoded)
+        data += payload + bytes(-len(data + payload) % 4)
     return data
 
 
@@ -248,8 +250,8 @@ class EncodingTests(unittest.TestCase):
         self.assertEqual(
             assets.label({"owner": 1, "asset": 2}, {}), "0x00000001/0x00000002"
         )
-        # The header is stored raw before the stream.
-        self.assertEqual(data[16:44], assets.MENU_HEADER)
+        self.assertEqual(by_name["revola/extensions"]["decoded"], MENU_BYTES)
+        self.assertLess(by_name["revola/extensions"]["bytes"], MENU_BYTES)
         too_many = {("a", f"x{i}"): flat for i in range(65)}
         with self.assertRaisesRegex(ValueError, "65 extension bitmaps exceed 64"):
             assets.encode_table(too_many)
@@ -281,7 +283,7 @@ class EncodingTests(unittest.TestCase):
 
     def test_decode_rejections(self):
         flat = assets.MENU_HEADER + bytes(9680)
-        stream = assets.MENU_HEADER + lz.lz_encode(bytes(9680))
+        stream = lz.lz_encode(flat)
         raw, packed = (
             rvtfile.EXTENSION_KINDS["bitmap"],
             rvtfile.EXTENSION_KINDS["bitmap_lz"],
@@ -290,9 +292,9 @@ class EncodingTests(unittest.TestCase):
         self.assertEqual(len(assets.decode_table(good, 0, 2, "p")[0]), 2)
         # An lz stream whose length is not a multiple of 4, so it is padded.
         unaligned = next(
-            assets.MENU_HEADER + lz.lz_encode(bytes((i,)) + bytes(9679))
+            lz.lz_encode(assets.MENU_HEADER + bytes((i,)) + bytes(9679))
             for i in range(1, 9)
-            if len(lz.lz_encode(bytes((i,)) + bytes(9679))) % 4
+            if len(lz.lz_encode(assets.MENU_HEADER + bytes((i,)) + bytes(9679))) % 4
         )
         over_cap = assets.HEADER.pack(0x1888, 0, 256, 32, 0, 0, 256, 64, 65536)
         wide = assets.HEADER.pack(8, 0, 76, 8, 0, 0, 121, 78, 9680)
@@ -304,24 +306,31 @@ class EncodingTests(unittest.TestCase):
             ),
             "sorted by unique owner": (table((1, 2, raw, flat)) + good, 3),
             "unknown kind 0x3": (table((1, 1, 3, flat)), 1),
-            "truncated payload": (table((1, 1, raw, flat, 9712)), 1),
-            "truncated payload$": (table((1, 1, raw, assets.MENU_HEADER)), 1),
-            "payload bytes do not match its header": (
+            "decoded size smaller than a header": (
+                table((1, 1, raw, assets.MENU_HEADER, 28)),
+                1,
+            ),
+            "truncated payload": (table((1, 1, raw, flat, MENU_BYTES, 9712)), 1),
+            "raw payload is not its decoded size": (
                 table((1, 1, raw, flat[:-4])),
                 1,
             ),
             "lz stream continues": (table((1, 1, packed, stream + b"\0")), 1),
             "lz stream ends early": (table((1, 1, packed, stream[:-1])), 1),
-            "lz stream longer than its rows allow": (
-                table((1, 1, packed, assets.MENU_HEADER + bytes(9680 + 1210 + 1))),
+            "lz stream longer than its bitmap allows": (
+                table((1, 1, packed, bytes(9708 + 1214 + 1))),
                 1,
             ),
             "65,564 bytes exceed 65,536": (
-                table((1, 1, raw, over_cap + bytes(65536))),
+                table((1, 1, raw, over_cap + bytes(65536), 65564)),
                 1,
             ),
-            "header does not describe its rows": (
+            "header does not describe its bytes": (
                 table((1, 1, raw, wide + bytes(9680))),
+                1,
+            ),
+            "header does not describe its bytes$": (
+                table((1, 1, raw, flat + bytes(4), MENU_BYTES + 4)),
                 1,
             ),
             "padding must be zero": (
@@ -331,6 +340,7 @@ class EncodingTests(unittest.TestCase):
                         1,
                         packed,
                         unaligned + bytes(-len(unaligned) % 4 - 1) + b"\1",
+                        MENU_BYTES,
                         len(unaligned),
                     )
                 ),

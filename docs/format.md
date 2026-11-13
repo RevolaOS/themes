@@ -82,14 +82,15 @@ Art a theme derives from its own PNG in the other appearance (`from_other` in [A
 
 ## Extension bitmaps
 
-After the pack's last record come its extension bitmaps, the bitmaps of RevolaOS extensions the theme replaces ([Authoring](authoring.md#extension-bitmaps)), ascending by owner then asset, each pair at most once, at most `RVT_EXTENSION_BITMAPS_MAX` (64) per pack, each `RVT_EXTENSION_BITMAP_BYTES` (16) of header:
+After the pack's last record come its extension bitmaps, the bitmaps of RevolaOS extensions the theme replaces ([Authoring](authoring.md#extension-bitmaps)), ascending by owner then asset, each pair at most once, at most `RVT_EXTENSION_BITMAPS_MAX` (64) per pack, each `RVT_EXTENSION_BITMAP_BYTES` (20) of header:
 
 | Size | Field |
 |---|---|
 | u32 | Owner: FNV-1a of the extension id; the core's own bitmaps are owned by the hash of `revola` |
 | u32 | Asset: FNV-1a of the asset name |
-| u32 | Kind, `enum rvt_extension_kind`: `RVT_EXTENSION_BITMAP` (1) the rows raw, `RVT_EXTENSION_BITMAP_LZ` (2) the rows as one lz stream |
-| u32 | Payload bytes |
+| u32 | Kind, `enum rvt_extension_kind`: `RVT_EXTENSION_BITMAP` (1) the bitmap raw, `RVT_EXTENSION_BITMAP_LZ` (2) the bitmap as one lz stream |
+| u32 | Stored bytes: the payload's length |
+| u32 | Decoded bytes: the bitmap's length |
 | bytes | Payload, zero-padded to 4 |
 
-A payload is the whole BMap as the iPod decodes it: the `RVT_BMAP_HEADER_BYTES` (28) header raw (format, reserved, stride, depth, the bounds top, left, bottom, right, payload bytes), then the header's payload bytes of palette and rows, raw or as one lz stream decoding to exactly that length and no longer than that length plus one flag byte per 8. The header plus its payload bytes is at most `RVT_EXTENSION_BITMAP_MAX_BYTES` (65,536); a reader checks the header the way the core does (bounds in order and within 16 bits, depth at most 32, a row of pixels within the stride, an Indexed8 palette of at most 256 entries within the payload and the rows within what is left) and rejects the bitmap otherwise. A Settings icon is a bitmap whose header is the menu header: Mask8 (8), stride 80, depth 8, bounds 0, 0, 121, 78, 9,680 payload bytes. The lz kind carries the same lz stream as `pixels_lz`; the hashes are the ones the core keys extension ids and asset names with (`revola/tools/rvx.py`, `fnv1a`); the compiler writes lz when the stream is smaller, and the pack CRC covers the extension bitmaps with the records.
+A bitmap is the whole BMap as the iPod decodes it: the `RVT_BMAP_HEADER_BYTES` (28) header (format, reserved, stride, depth, the bounds top, left, bottom, right, payload bytes), then the header's payload bytes of palette and rows. The payload is that bitmap raw, stored equal to decoded, or one lz stream decoding to exactly the decoded bytes and no longer than them plus one flag byte per 8, so the core can size the bitmap's block and run its own lz decoder without looking inside the stream. The decoded bytes are at most `RVT_EXTENSION_BITMAP_MAX_BYTES` (65,536) and equal the header plus its payload bytes; a reader checks the header the way the core does (bounds in order and within 16 bits, depth at most 32, a row of pixels within the stride, an Indexed8 palette of at most 256 entries within the payload and the rows within what is left) and rejects the bitmap otherwise. A Settings icon is a bitmap whose header is the menu header: Mask8 (8), stride 80, depth 8, bounds 0, 0, 121, 78, 9,680 payload bytes. The lz kind carries the same lz stream as `pixels_lz`; the hashes are the ones the core keys extension ids and asset names with (`revola/tools/rvx.py`, `fnv1a`); the compiler writes lz when the stream is smaller, and the pack CRC covers the extension bitmaps with the records.

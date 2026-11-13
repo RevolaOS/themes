@@ -84,7 +84,7 @@ class HeaderCopyTests(unittest.TestCase):
                 format.EXTENSION_BITMAPS_MAX,
                 format.EXTENSION_BITMAP_MAX_BYTES,
             ),
-            (16, {"bitmap": 1, "bitmap_lz": 2}, 28, 64, 65536),
+            (20, {"bitmap": 1, "bitmap_lz": 2}, 28, 64, 65536),
         )
         self.assertEqual(format.RELIGHT_FIELDS[:2], ("t_zero", "t_full"))
         self.assertEqual(format.SCRATCH_PIXELS, 3840)

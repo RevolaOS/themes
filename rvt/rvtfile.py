@@ -165,8 +165,8 @@ PACK_OFFSETS = (
 )
 # A record: catalog index, kind, payload bytes.
 RECORD = struct.Struct("<III")
-# An extension bitmap: owner hash, asset hash, kind, payload bytes.
-EXTENSION_BITMAP = struct.Struct("<IIII")
+# An extension bitmap: owner hash, asset hash, kind, stored bytes, decoded bytes.
+EXTENSION_BITMAP = struct.Struct("<IIIII")
 PAIR = struct.Struct("<4s4s")
 RELIGHT = struct.Struct(f"<{len(RELIGHT_FIELDS)}i")
 

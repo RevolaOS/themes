@@ -297,8 +297,8 @@ def encode_table(
     bmaps: dict[tuple[str, str], bytes],
 ) -> tuple[bytes, int, dict[str, int]]:
     """The extension bitmap table of (id, asset) -> whole BMap, ascending by
-    the hashes, the header raw and the rows as an lz stream when that is
-    smaller; its bytes, its count and the count per kind name."""
+    the hashes, each as one lz stream when that is smaller; its bytes, its
+    count and the count per kind name."""
     if len(bmaps) > rvtfile.EXTENSION_BITMAPS_MAX:
         fail(
             FOLDER,
@@ -310,19 +310,19 @@ def encode_table(
         bmaps.items(), key=lambda item: (owner_hash(item[0][0]), asset_hash(item[0][1]))
     )
     for (identifier, asset), bmap in ordered:
-        header, rows = bmap[: HEADER.size], bmap[HEADER.size :]
-        name, data = "bitmap", rows
-        packed = lz.lz_encode(rows)
-        if len(packed) < len(rows):
+        name, data = "bitmap", bmap
+        packed = lz.lz_encode(bmap)
+        if len(packed) < len(bmap):
             name, data = "bitmap_lz", packed
         counts[name] = counts.get(name, 0) + 1
         table += rvtfile.EXTENSION_BITMAP.pack(
             owner_hash(identifier),
             asset_hash(asset),
             rvtfile.EXTENSION_KINDS[name],
-            HEADER.size + len(data),
+            len(data),
+            len(bmap),
         )
-        table += header + data
+        table += data
         table += bytes(-len(table) % 4)
     return bytes(table), len(bmaps), counts
 
@@ -370,11 +370,11 @@ def decode_table(
     body: bytes, at: int, count: int, where: str
 ) -> tuple[list[dict], int]:
     """The `count` extension bitmaps starting at `at`, each checked: known
-    kind, ascending unique (owner, asset), a payload of the header and the
-    rows, raw or as an lz stream no longer than the rows plus a flag byte per
-    8 that decodes to exactly the header's payload bytes, within the cap, with
-    zero padding. Returns the bitmaps, each with its decoded whole BMap as
-    `bmap`, and the offset after the last."""
+    kind, ascending unique (owner, asset), a decoded size within the cap, a
+    payload of the whole BMap raw at that size or as an lz stream no longer
+    than it plus a flag byte per 8 that decodes to exactly it, a header that
+    describes exactly that many bytes, zero padding. Returns the bitmaps, each
+    with its decoded whole BMap as `bmap`, and the offset after the last."""
     if count > rvtfile.EXTENSION_BITMAPS_MAX:
         fail(where, f"{count} extension bitmaps exceed {rvtfile.EXTENSION_BITMAPS_MAX}")
     found = []
@@ -382,7 +382,9 @@ def decode_table(
     for _ in range(count):
         if at + rvtfile.EXTENSION_BITMAP_BYTES > len(body):
             fail(where, "truncated extension bitmap header")
-        owner, asset, kind, length = rvtfile.EXTENSION_BITMAP.unpack_from(body, at)
+        owner, asset, kind, stored, decoded = rvtfile.EXTENSION_BITMAP.unpack_from(
+            body, at
+        )
         name = f"extension bitmap {owner:#010x}/{asset:#010x}"
         if previous is not None and (owner, asset) <= previous:
             fail(where, "extension bitmaps must be sorted by unique owner and asset")
@@ -390,30 +392,30 @@ def decode_table(
         if kind not in KIND_NAMES:
             fail(where, f"{name} has unknown kind {kind:#x}")
         at += rvtfile.EXTENSION_BITMAP_BYTES
-        end = at + length
-        if length <= HEADER.size or rvtfile.align(end) > len(body):
-            fail(where, f"{name}: truncated payload")
-        header = body[at : at + HEADER.size]
-        payload_bytes = HEADER.unpack_from(header)[8]
-        if HEADER.size + payload_bytes > rvtfile.EXTENSION_BITMAP_MAX_BYTES:
+        if decoded <= HEADER.size:
+            fail(where, f"{name}: decoded size smaller than a header")
+        if decoded > rvtfile.EXTENSION_BITMAP_MAX_BYTES:
             fail(
                 where,
-                f"{name}: {HEADER.size + payload_bytes:,} bytes exceed "
-                f"{rvtfile.EXTENSION_BITMAP_MAX_BYTES:,}",
+                f"{name}: {decoded:,} bytes exceed {rvtfile.EXTENSION_BITMAP_MAX_BYTES:,}",
             )
-        rows = body[at + HEADER.size : end]
+        end = at + stored
+        if rvtfile.align(end) > len(body):
+            fail(where, f"{name}: truncated payload")
+        bmap = body[at:end]
         if KIND_NAMES[kind] == "bitmap_lz":
-            if len(rows) > payload_bytes + (payload_bytes + 7) // 8:
-                fail(where, f"{name}: lz stream longer than its rows allow")
+            if stored > decoded + (decoded + 7) // 8:
+                fail(where, f"{name}: lz stream longer than its bitmap allows")
             try:
-                rows = lz.lz_decode(rows, payload_bytes)
+                bmap = lz.lz_decode(bmap, decoded)
             except ValueError as error:
                 fail(where, f"{name}: {error}")
-        elif len(rows) != payload_bytes:
-            fail(where, f"{name}: payload bytes do not match its header")
-        bmap = header + rows
-        if not header_sane(bmap):
-            fail(where, f"{name}: bitmap header does not describe its rows")
+        elif stored != decoded:
+            fail(where, f"{name}: raw payload is not its decoded size")
+        if HEADER.size + HEADER.unpack_from(bmap)[8] != decoded or not header_sane(
+            bmap
+        ):
+            fail(where, f"{name}: bitmap header does not describe its bytes")
         if any(body[end : rvtfile.align(end)]):
             fail(where, f"{name}: padding must be zero")
         found.append(
@@ -421,7 +423,8 @@ def decode_table(
                 "owner": owner,
                 "asset": asset,
                 "kind": KIND_NAMES[kind],
-                "bytes": length,
+                "bytes": stored,
+                "decoded": decoded,
                 "bmap": bmap,
                 **describe(bmap),
             }
