@@ -495,8 +495,11 @@ EXTRAS = {
     "AddressViewer_Preview_Image": "person_2_fill",
     "Speakers_Icon_Image": "speaker_3_fill",
 }
-# Stock shapes drawn in the icon tint: the EQ curves and the Apple logo.
-TINT_ONLY = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"] + [
+# Stock shapes drawn in the icon tint: the EQ curves and the Apple logo. The
+# logo's mask carries its gloss in its coverage levels; solid coverage draws
+# every level from the floor up as full, so it comes out flat in both looks.
+SOLID_COVERAGE = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"]
+TINT_ONLY = SOLID_COVERAGE + [
     f"Settings_EQ_{preset}_Image"
     for preset in (
         "Acoustic BassBooster BassReducer Classical Dance Deep Electronic Flat HipHop "
@@ -3445,6 +3448,7 @@ class Renderer:
                 names -= matched
                 patterns.append(pattern)
             grouped[role] = patterns + sorted(names)
+        grouped["solid_coverage"] = SOLID_COVERAGE
         return grouped
 
     def derived(self, files):

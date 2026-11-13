@@ -156,6 +156,7 @@ selection = [
     "LockScreen_TumblerFocus_Image",
     "Settings_DateTime_Capsule_Hilite",
 ]
+solid_coverage = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"]
 
 [dark]
 menu_covers_default = false
@@ -308,6 +309,7 @@ selection = [
     "LockScreen_TumblerFocus_Image",
     "Settings_DateTime_Capsule_Hilite",
 ]
+solid_coverage = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"]
 
 [dark.derive]
 "BigDaisyPetal?" = { kind = "alias", from_other = true }
