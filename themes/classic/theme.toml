@@ -5,5 +5,10 @@ name = "Classic"
 [dark.derive]
 "Media_NowPlayingIcon_*Black_Image" = { kind = "invert" }
 "No_Content_Albums_Small_Image" = { kind = "alias", source = "Media_AlbumsProxy_Image" }
+"No_Content_AudioBooks_Small_Image" = { kind = "alias", source = "Media_AudioBooksProxy_Image" }
+"No_Content_MusicVideos_Small_Image" = { kind = "alias", source = "Media_MusicVideosProxy_Image" }
+"No_Content_Podcasts_Small_Image" = { kind = "alias", source = "Media_PodcastsProxy_Image" }
+"No_Content_TVShows_Small_Image" = { kind = "alias", source = "Media_TVShowsProxy_Image" }
+"No_Content_Videos_Small_Image" = { kind = "alias", source = "Media_VideosProxy_Image" }
 "NowPlaying_White_Pause_Image" = { kind = "alias", source = "NowPlaying_Black_Pause_Image" }
 "NowPlaying_White_Play_Image" = { kind = "alias", source = "NowPlaying_Black_Play_Image" }
