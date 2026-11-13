@@ -121,9 +121,14 @@ class StyleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "tint byte 9"):
             style.decode(bytes(data))
         data[216] = 8 | format.TINT_DARKNESS
+        data[217] = 8 | format.TINT_SOLID
         self.assertEqual(
-            style.decode(bytes(data))["tinted"], {0: ("icon_tint", "darkness")}
+            style.decode(bytes(data))["tinted"],
+            {0: ("icon_tint", "darkness"), 1: ("icon_tint", "solid")},
         )
+        data[217] |= format.TINT_DARKNESS
+        with self.assertRaisesRegex(ValueError, "two coverages"):
+            style.decode(bytes(data))
         self.assertAlmostEqual(style.contrast("#000000", "#ffffff"), 21.0)
 
 

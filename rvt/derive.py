@@ -357,6 +357,11 @@ def luma(red: int, green: int, blue: int) -> int:
     return (77 * red + 150 * green + 29 * blue) >> 8
 
 
+def div255(value: int) -> int:
+    """value / 255 rounded, as the iPod's pixel helper does."""
+    return (value + 1 + (value >> 8)) >> 8
+
+
 def tdiv(a: int, b: int) -> int:
     """Division truncating toward zero, as C does."""
     q = abs(a) // abs(b)
@@ -446,6 +451,44 @@ def apply_invert(info: Entry, data: bytes) -> bytes:
             struct.pack_into(
                 "<H", out, at, struct.unpack_from("<H", out, at)[0] ^ 0xFFFF
             )
+    return bytes(out)
+
+
+def solid_level(level: int, full: int) -> int:
+    """A coverage level with the solid floor applied: full from the floor up,
+    the floor scaled to the level range of the format."""
+    return full if level * FULL >= rvtfile.SOLID_FLOOR * full else level
+
+
+def apply_coverage(info: Entry, data: bytes, coverage: str) -> bytes:
+    """Tinted stock art as the iPod prepares it: alpha, darkness (alpha scaled
+    by 255 - luma) or solid coverage, on palette entries, BGRA pixels or mask
+    levels. Alpha coverage leaves the bytes alone."""
+    if coverage == "alpha":
+        return data
+    out = bytearray(data)
+    if is_mask(info):
+        if coverage != "solid":
+            raise ValueError(f"{info['name']} is a mask; its coverage is its level")
+        start, stride = info["pixels_offset"], info["stride"]
+        for y in range(info["height"]):
+            row = start + y * stride
+            for x in range(info["width"]):
+                if info["format"] == bitmaps.MASK8:
+                    out[row + x] = solid_level(out[row + x], FULL)
+                else:
+                    at, shift = row + x // 2, 4 if x % 2 == 0 else 0
+                    level = solid_level(out[at] >> shift & 15, 15)
+                    out[at] = out[at] & ~(15 << shift) | level << shift
+        return bytes(out)
+    if is_565(info):
+        raise ValueError(f"{info['name']} has no coverage")
+    for at, _ in _each_slot(info, out):
+        blue, green, red, alpha = out[at : at + 4]
+        if coverage == "darkness":
+            out[at + 3] = div255(alpha * (FULL - luma(red, green, blue)))
+        else:
+            out[at + 3] = solid_level(alpha, FULL)
     return bytes(out)
 
 

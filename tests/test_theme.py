@@ -140,12 +140,13 @@ class ThemeTests(unittest.TestCase):
             'icon_tint = ["[BET]*", "Alpha", "0xb0"]\n'
             'text = ["Delta", "Nope_*"]\n'
             'darkness_coverage = ["Lambda", "[BT]?eta"]\n'
+            'solid_coverage = ["Alpha"]\n'
         )
         tinted = self.pack(build)["tinted"]
         self.assertEqual(
             {t["name"]: (t["role"], t["coverage"]) for t in tinted.values()},
             {
-                "Alpha": ("icon_tint", "alpha"),
+                "Alpha": ("icon_tint", "solid"),
                 "Beta": ("icon_tint", "alpha"),
                 "Epsilon": ("icon_tint", "alpha"),
                 "Eta": ("icon_tint", "alpha"),
@@ -165,6 +166,11 @@ class ThemeTests(unittest.TestCase):
             "light.tint.text: Eta is already tinted icon_tint": 'icon_tint = ["Eta"]\ntext = ["[ET]*"]\n',
             "light.tint.darkness_coverage: Alpha has no tint role": 'darkness_coverage = ["Alpha"]\n',
             "light.tint.darkness: expected one of": 'darkness = ["Alpha"]\n',
+            "light.tint.solid_coverage: Alpha has no tint role": 'solid_coverage = ["Alpha"]\n',
+            "already takes its coverage from darkness": (
+                'icon_tint = ["Alpha"]\ndarkness_coverage = ["Alpha"]\n'
+                'solid_coverage = ["Alpha"]\n'
+            ),
             "light.tint.icon_tint: 'Nope' is not a catalog bitmap name": 'icon_tint = ["Nope"]\n',
             "light.tint.icon_tint: Zeta cannot be tinted": 'icon_tint = ["Zeta"]\n',
             "light.tint.icon_tint: expected a catalog name": "icon_tint = [1]\n",

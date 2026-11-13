@@ -259,6 +259,35 @@ class DeriveTests(unittest.TestCase):
         self.assertEqual(tinted[LAMBDA]["coverage"], "darkness")
         self.assertEqual(self.records(data), [])
 
+    def test_coverage_arithmetic(self):
+        alpha, delta, epsilon = (self.catalog.assets[i] for i in (0, 3, 4))
+        pixels = delta["pixels_offset"]
+        data = self.stock(3)[:pixels] + bytes([0, 149, 150, 255])
+        self.assertEqual(
+            derive.apply_coverage(delta, data, "solid")[pixels:],
+            bytes([0, 149, 255, 255]),
+        )
+        self.assertEqual(derive.apply_coverage(delta, data, "alpha"), data)
+        with self.assertRaisesRegex(ValueError, "mask"):
+            derive.apply_coverage(delta, data, "darkness")
+        # 4-bit levels: 9 x 17 = 153 is at the floor, 8 x 17 = 136 below it.
+        data = self.stock(4)[: epsilon["pixels_offset"]] + bytes([0x89, 0xF0])
+        self.assertEqual(
+            derive.apply_coverage(epsilon, data, "solid")[-2:], bytes([0x8F, 0xF0])
+        )
+        data = self.stock(0)
+        start = alpha["pixels_offset"] - 8  # the two palette entries
+        solid = derive.apply_coverage(alpha, data, "solid")
+        self.assertEqual(solid[start + 3], 255)
+        self.assertEqual(solid[start + 7], 127)
+        darkness = derive.apply_coverage(alpha, data, "darkness")
+        self.assertEqual(
+            darkness[start + 3], derive.div255(255 * (255 - derive.luma(1, 2, 3)))
+        )
+        self.assertEqual(
+            darkness[start + 7], derive.div255(127 * (255 - derive.luma(4, 5, 6)))
+        )
+
     # Reference arithmetic on fixture bitmaps
 
     def test_apply_recolor_swaps_without_chaining(self):

@@ -101,7 +101,7 @@ def inspect_pack(
         record = by_index.get(index)
         if record is not None and record["kind"] not in rvtfile.PIXEL_KINDS:
             fail(where, f"tinted {label(index)} has a derived record")
-        if record is not None and coverage == "darkness":
+        if record is not None and coverage != "alpha":
             fail(where, f"tinted {label(index)} takes its coverage from stock art")
         if entries is None:
             continue

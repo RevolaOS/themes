@@ -32,9 +32,10 @@ class Firmware:
 
 
 def render(catalog, firmware, data):
-    """Every record of an .rvt applied to the stock bitmaps: appearance ->
-    name -> {index, kind, address, bytes, crc32, png}, plus warnings about
-    recolour pairs that match no stock colour."""
+    """Every record of an .rvt applied to the stock bitmaps, and every tinted
+    stock bitmap whose coverage the iPod rewrites (kind `coverage`):
+    appearance -> name -> {index, kind, address, bytes, crc32, png}, plus
+    warnings about recolour pairs that match no stock colour."""
     result = {}
     warnings = []
     for appearance, pack in inspector.inspect(data, catalog)["appearances"].items():
@@ -49,6 +50,12 @@ def render(catalog, firmware, data):
             for record in pack["records"]
         ]
         derived = derive.apply_pack(catalog, firmware.bitmap, records)
+        for index, tint in pack["tinted"].items():
+            if index not in derived and tint["coverage"] != "alpha":
+                derived[index] = derive.apply_coverage(
+                    catalog.assets[index], firmware.bitmap(index), tint["coverage"]
+                )
+                records.append((index, "coverage", tint["coverage"]))
         result[appearance] = {}
         for index, kind, spec in records:
             info = catalog.assets[index]

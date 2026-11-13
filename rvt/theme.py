@@ -47,6 +47,8 @@ RESERVED_IDS = ("classic",)
 COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
 GLOB_CHARS = set("*?[")
 DARKNESS = "darkness_coverage"
+SOLID = "solid_coverage"
+COVERAGE_LISTS = {DARKNESS: "darkness", SOLID: "solid"}
 TEXT_LIMIT = 64
 TOML_LIMIT = 256 * 1024
 
@@ -217,9 +219,10 @@ def resolve_tints(
     table: dict, appearance: str, catalog: Catalog
 ) -> tuple[dict[int, tuple[str, str]], list[str]]:
     """Catalog index -> (role, coverage) from [<appearance>.tint], and warnings
-    about globs that match nothing: role = [names or globs] per role, and a
+    about globs that match nothing: role = [names or globs] per role, a
     `darkness_coverage` list naming tinted bitmaps whose coverage is their
-    darkness."""
+    darkness and a `solid_coverage` list naming those whose coverage is full
+    from the floor up."""
     where = f"{appearance}.tint"
     tints = table.get("tint", {})
     if not isinstance(tints, dict):
@@ -228,15 +231,15 @@ def resolve_tints(
     warnings: list[str] = []
     for role, patterns in tints.items():
         at = f"{where}.{role}"
-        if role != DARKNESS and role not in style.ROLES:
-            fail(at, f"expected one of {', '.join(style.ROLES)}, {DARKNESS}")
+        if role not in COVERAGE_LISTS and role not in style.ROLES:
+            fail(at, f"expected one of {', '.join((*style.ROLES, *COVERAGE_LISTS))}")
         if not isinstance(patterns, list):
             fail(at, "expected a list of catalog names, hex ids or globs")
         for pattern in patterns:
             found = matching(pattern, catalog, at)
             if not found:
                 warnings.append(f"{at}: {pattern!r} matches no catalog bitmap")
-            if role == DARKNESS:
+            if role in COVERAGE_LISTS:
                 continue
             for index in found:
                 info = catalog.assets[index]
@@ -248,13 +251,20 @@ def resolve_tints(
                         f"{info['name']} cannot be tinted: it has no palette or coverage",
                     )
                 tinted[index] = (role, "alpha")
-    for pattern in tints.get(DARKNESS, []):
-        at = f"{where}.{DARKNESS}"
-        for index in matching(pattern, catalog, at):
-            name = catalog.assets[index]["name"]
-            if index not in tinted:
-                fail(at, f"{name} has no tint role")
-            tinted[index] = (tinted[index][0], "darkness")
+    for key, coverage in COVERAGE_LISTS.items():
+        at = f"{where}.{key}"
+        for pattern in tints.get(key, []):
+            for index in matching(pattern, catalog, at):
+                name = catalog.assets[index]["name"]
+                if index not in tinted:
+                    fail(at, f"{name} has no tint role")
+                if tinted[index][1] == coverage:
+                    fail(at, f"{name} is listed twice")
+                if tinted[index][1] != "alpha":
+                    fail(
+                        at, f"{name} already takes its coverage from {tinted[index][1]}"
+                    )
+                tinted[index] = (tinted[index][0], coverage)
     return tinted, warnings
 
 
@@ -351,6 +361,7 @@ def template(identifier: str, name: str) -> str:
         out += [f"# {role} = []" for role in style.ROLES]
         out += [
             f"# {DARKNESS} = []   # coverage from darkness, stock art only",
+            f"# {SOLID} = []      # coverage full from the floor up, stock art only",
             "",
             "# Rules that derive bitmaps from the stock art or, with",
             "# from_other = true, from this theme's own PNG in the other appearance.",

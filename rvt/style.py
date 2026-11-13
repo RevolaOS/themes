@@ -112,12 +112,16 @@ def contrast_report(colors: dict, palettes: dict) -> list[dict]:
     return report
 
 
-COVERAGES = ("alpha", "darkness")
+COVERAGES = ("alpha", "darkness", "solid")
+COVERAGE_BITS = {
+    "alpha": 0,
+    "darkness": rvtfile.TINT_DARKNESS,
+    "solid": rvtfile.TINT_SOLID,
+}
 
 
 def tint_byte(role: str, coverage: str = "alpha") -> int:
-    value = rvtfile.TINT_ROLE + ROLES.index(role)
-    return value | (rvtfile.TINT_DARKNESS if coverage == "darkness" else 0)
+    return rvtfile.TINT_ROLE + ROLES.index(role) | COVERAGE_BITS[coverage]
 
 
 def encode(colors: dict, flags: int, palettes: dict, tinted: dict) -> bytes:
@@ -165,8 +169,11 @@ def decode(data: bytes) -> dict:
     for index, value in enumerate(data[TINT_OFFSET:]):
         if value == rvtfile.TINT_NONE:
             continue
-        coverage = "darkness" if value & rvtfile.TINT_DARKNESS else "alpha"
-        value &= ~rvtfile.TINT_DARKNESS
+        bits = value & (rvtfile.TINT_DARKNESS | rvtfile.TINT_SOLID)
+        value &= ~bits
+        coverage = next((c for c, b in COVERAGE_BITS.items() if b == bits), None)
+        if coverage is None:
+            raise ValueError(f"tint byte of bitmap {index} names two coverages")
         if rvtfile.TINT_ROLE <= value < rvtfile.TINT_ROLE + len(ROLES):
             tinted[index] = (ROLES[value - rvtfile.TINT_ROLE], coverage)
         else:

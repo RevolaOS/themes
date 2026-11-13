@@ -60,6 +60,7 @@ flat_now_playing = false
 icon_tint = ["Settings_EQ_*_Image", "Media_*Proxy_Image"]
 text = ["StatusBar*_Battery_Image_[3-9]", "StatusBar*_Battery_Image_[12][0-9]"]
 darkness_coverage = ["NowPlaying_Blue_Dot_Image"]
+solid_coverage = ["Settings_AppleLogo_Image"]
 
 [light.derive]          # rules for derived art; see Derived art
 "Settings_Brightness_Image" = { kind = "invert" }
@@ -154,7 +155,7 @@ The art must be the bitmap's exact native size; the compiler converts it to the 
 | BGRA8888 | No; without art the stock coverage is tinted | The pixels are rewritten, keeping their alpha |
 | RGB565 | Cannot be tinted | |
 
-The `darkness_coverage` list names tinted bitmaps whose coverage is their darkness instead of their alpha, for stock glyphs drawn black on transparent, where the alpha alone has no anti-aliasing. Darkness coverage applies to the stock bitmap only; it is rejected with a PNG. A tinted bitmap cannot also be derived.
+The `darkness_coverage` list names tinted bitmaps whose coverage is their darkness instead of their alpha, for stock glyphs drawn black on transparent, where the alpha alone has no anti-aliasing. The `solid_coverage` list names tinted bitmaps drawn flat: every coverage level from 150 of 255 up becomes full and the levels below, the anti-aliased rim, stay, for stock masks whose gloss lives in their levels, such as the Apple logo. A bitmap is in one of the two lists at most. Both apply to the stock bitmap only; they are rejected with a PNG. A tinted bitmap cannot also be derived.
 
 ### Derived art
 
