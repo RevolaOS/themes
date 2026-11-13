@@ -14,7 +14,7 @@ python3 -m rvt compile themes/flat          # into dist/flat/flat.rvt
 python3 -m rvt inspect dist/flat/flat.rvt
 ```
 
-`<id>.rvt` is what goes to `/Revola/Themes/<id>.rvt`. Flat's art and `theme.toml` are drawn by `themes/flat/render.py` from Cupertino Icons and Inter with ImageMagick (`--font`, `--text-font`); `render.py --check` confirms the committed files match. The other commands, tests and the layout of the compiler are in [The compiler](docs/toolchain.md).
+`<id>.rvt` is what goes to `/Revola/Themes/<id>.rvt`. Flat's art and `theme.toml` are drawn by `themes/flat/render.py` from Cupertino Icons and Inter with ImageMagick (`--font`, `--text-font`); `render.py --check` confirms the committed files match. Classic's generated recolour rule files come from `themes/classic/recolor.py --firmware osos.bin`, which reads the stock colours out of a decrypted 2.0.5 firmware; `--check` confirms the committed files match the script's table. The other commands, tests and the layout of the compiler are in [The compiler](docs/toolchain.md).
 
 ## Documentation
 

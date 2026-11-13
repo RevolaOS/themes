@@ -1,0 +1,6 @@
+kind = "recolor"
+
+[map]
+"#6d6d6dff" = "#b7b7b7ff"
+"#7d7d7dff" = "#b0b0b0ff"
+"#d6d6d6ff" = "#a0a0a0ff"

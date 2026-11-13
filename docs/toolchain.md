@@ -49,7 +49,7 @@ Warnings name a bitmap whose PNG has more colours than its native palette (reduc
 | `tools/bitmaps_doc.py` | Writes [Bitmaps](bitmaps.md) from the catalog |
 | `tools/extensions_catalog.py` | Writes `rvt/data/extensions.json` from the extensions build's `dist/assets.json`, see [Catalog](catalog.md#extension-asset-catalog) |
 | `tools/extension_bitmaps_doc.py` | Writes [Extension bitmaps](extension-bitmaps.md) from `rvt/data/extensions.json` |
-| `themes/` | The first-party themes; `themes/flat/render.py` draws Flat's art and Settings icons, `themes/classic/batteries.py` Classic dark's idle battery frames |
+| `themes/` | The first-party themes; `themes/flat/render.py` draws Flat's art and Settings icons, `themes/classic/recolor.py` writes Classic dark's generated recolour rule files from the stock colours (needs `--firmware`), `themes/classic/fit.py` snaps Classic's own PNG to its bitmap's palette |
 
 ## Tests
 

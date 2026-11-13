@@ -1,0 +1,17 @@
+kind = "recolor"
+
+[map]
+"#ffffff1d" = "#2f2f2f1d"
+"#c2c2c2ff" = "#242424ff"
+"#eaeae9ff" = "#2b2b2bff"
+"#eae9eaff" = "#2b2b2bff"
+"#e9eaeaff" = "#2b2b2bff"
+"#eaeaeaff" = "#2c2c2cff"
+"#fbfbfbff" = "#2f2f2fff"
+"#fcfbfbff" = "#2f2f2fff"
+"#fbfcfbff" = "#2f2f2fff"
+"#fcfcfbff" = "#2f2f2fff"
+"#fbfbfcff" = "#2f2f2fff"
+"#fcfbfcff" = "#2f2f2fff"
+"#fcfcfcff" = "#2f2f2fff"
+"#ffffffff" = "#2f2f2fff"
