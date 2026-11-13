@@ -1,0 +1,41 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: themes
+      # The drift tests compare vendored files with their sources in the
+      # sibling repositories; without them they skip.
+      - uses: actions/checkout@v4
+        with:
+          repository: RevolaOS/revola
+          path: revola
+      - uses: actions/checkout@v4
+        with:
+          repository: RevolaOS/extensions
+          path: extensions
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Ruff
+        working-directory: themes
+        run: |
+          pip install ruff==0.17.5
+          ruff check .
+          ruff format --check .
+      - name: Tests
+        working-directory: themes
+        run: python3 -m unittest discover -s tests
+      - name: First-party themes
+        working-directory: themes
+        run: |
+          python3 -m rvt compile themes/classic --allow-reserved --strict
+          python3 -m rvt compile themes/flat
