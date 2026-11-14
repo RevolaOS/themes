@@ -134,9 +134,9 @@ class EncodingTests(unittest.TestCase):
         self.assertEqual(
             assets.bitmap.encode_mask(W, H, bytes(mixed))[28:31], bytes((0, 255, 255))
         )
-        with self.assertRaisesRegex(ValueError, "a menu bitmap is coverage"):
+        with self.assertRaisesRegex(ValueError, "a pane icon is coverage"):
             assets.bitmap.encode_mask(W, H, bytes((200, 10, 10, 255)) * (W * H))
-        with self.assertRaisesRegex(ValueError, "a menu bitmap is 78 x 121, not 4 x 1"):
+        with self.assertRaisesRegex(ValueError, "a pane icon is 78 x 121, not 4 x 1"):
             assets.bitmap.encode_mask(4, 1, bytes(16))
 
     def test_picture_follows_encode_bmap(self):
@@ -196,7 +196,7 @@ class EncodingTests(unittest.TestCase):
             with self.assertRaises(ValueError) as caught:
                 assets.encode(png, "x", record("e", "a", 5, 2))
             self.assertEqual(str(caught.exception), "x: expected 5x2, got 4x1")
-            with self.assertRaisesRegex(ValueError, "x: a menu bitmap is 78 x 121"):
+            with self.assertRaisesRegex(ValueError, "x: a pane icon is 78 x 121"):
                 assets.encode(png, "x", record("e", "a", 78, 121, menu=True))
             png.write_bytes(icon_png())
             self.assertTrue(
@@ -608,10 +608,10 @@ class CompileTests(unittest.TestCase):
             "light/extensions/appearance/" + "a" * 32 + ".png: expected <asset>.png": {
                 "light/extensions/appearance/" + "a" * 32 + ".png": icon_png()
             },
-            f"{MOON_PNG}: a menu bitmap is 78 x 121, not 4 x 1": {
+            f"{MOON_PNG}: a pane icon is 78 x 121, not 4 x 1": {
                 MOON_PNG: rgba_png(4, 1, bytes(16))
             },
-            f"{MOON_PNG}: a menu bitmap is coverage": {
+            f"{MOON_PNG}: a pane icon is coverage": {
                 MOON_PNG: rgba_png(W, H, bytes((200, 10, 10, 255)) * (W * H))
             },
             f"{MOON_PNG}: truncated PNG": {MOON_PNG: icon_png()[:-20]},

@@ -6,7 +6,7 @@ A theme replaces any bitmap asset of an extension, a Settings icon or a canvas
 bitmap, with a whole BMap the iPod uses as it would the extension's own: the
 28-byte header, then the palette and rows. The compiler encodes a PNG with the
 SDK's own encoder, rvt/data/bitmap.py, vendored byte for byte from
-revola/tools/bitmap.py: `encode_mask` for a menu bitmap (a 78 x 121 coverage
+revola/tools/bitmap.py: `encode_mask` for a pane icon (a 78 x 121 coverage
 mask, Mask8, stride 80), `encode_bmap` for any other (Indexed8 with a palette
 up to 256 colours, else BGRA8888, rows padded to 4 bytes). The pack stores the
 header raw and the rows raw or as one lz stream, at most the rows plus one flag
@@ -30,7 +30,7 @@ from rvt.errors import fail
 
 HEADER = bitmap.HEADER
 MASK8, INDEXED8, BGRA8888 = bitmap.MASK8, bitmap.INDEXED8, bitmap.BGRA8888
-MENU_WIDTH, MENU_HEIGHT = bitmap.MENU_SIZE
+MENU_WIDTH, MENU_HEIGHT = bitmap.ICON_SIZE
 MENU_STRIDE = (MENU_WIDTH + 3) & ~3
 MENU_HEADER = HEADER.pack(
     MASK8, 0, MENU_STRIDE, 8, 0, 0, MENU_HEIGHT, MENU_WIDTH, MENU_STRIDE * MENU_HEIGHT
