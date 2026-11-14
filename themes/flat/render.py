@@ -130,6 +130,7 @@ GLYPH = {
     "eyedropper_full": 0xF665,
     "slider_horizontal_3": 0xF7DC,
     "cube_fill": 0xF61D,
+    "speedometer": 0xF7F5,
     "music_note_2": 0xF46C,
     "film": 0xF66B,
     "tv_music_note_fill": 0xF886,
@@ -175,6 +176,8 @@ GLYPH = {
 ICON_SIZE = (78, 121)
 EXTENSION_ICONS = {
     ("revola", "extensions"): "cube_fill",
+    ("revola", "optimize"): "speedometer",
+    ("revola", "info"): "revola",
     ("appearance", "settings-appearance"): "sparkles",
     ("appearance", "settings-theme"): "paintbrush_fill",
     ("appearance", "settings-accent"): "eyedropper_full",
@@ -313,11 +316,53 @@ def equalizer_shapes():
     return draw
 
 
+def revola_shapes():
+    """The Revola mark: a wheel around a core with one segment set apart, from
+    the vector paths of its 256 x 256 artboard (sectors between radii 96 and
+    59, a disc of radius 24) fitted to the art box of the core's own icon."""
+    reach, centre = 52, (39, 37)
+    (left, right), (top, bottom) = (32, 227), (29, 224)
+    scale = reach / max(right - left, bottom - top)
+    dx = centre[0] - (left + right) / 2 * scale
+    dy = centre[1] - (top + bottom) / 2 * scale
+
+    def point(x, y):
+        return f"{dx + x * scale:.3f},{dy + y * scale:.3f}"
+
+    outer, inner = f"{96 * scale:.3f}", f"{59 * scale:.3f}"
+    sectors = (
+        (
+            (219.771, 147.441),
+            1,
+            (108.559, 36.229),
+            (114.984, 72.667),
+            (183.333, 141.016),
+        ),
+        (
+            (148.899, 29.229),
+            0,
+            (226.771, 107.101),
+            (190.333, 113.526),
+            (142.474, 65.667),
+        ),
+    )
+    draw = ["-fill", "white"]
+    for start, large, rim, back, end in sectors:
+        draw += [
+            "-draw",
+            f"path 'M {point(*start)} A {outer} {outer} 0 {large} 1 {point(*rim)} "
+            f"L {point(*back)} A {inner} {inner} 0 {large} 0 {point(*end)} Z'",
+        ]
+    cx, cy, radius = 125.229, 130.771, 24
+    return [*draw, "-draw", f"circle {point(cx, cy)} {point(cx + radius, cy)}"]
+
+
 ICON_SHAPES = {
     "channels": channels_shapes,
     "compressor": compressor_shapes,
     "crossfeed": crossfeed_shapes,
     "equalizer": equalizer_shapes,
+    "revola": revola_shapes,
 }
 
 

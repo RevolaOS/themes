@@ -7,4 +7,7 @@
 {"asset": "settings-compressor", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "compressor", "menu": true, "palette_colors": 0, "preload": "optional", "stride": 80, "width": 78}
 {"asset": "settings-crossfeed", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "crossfeed", "menu": true, "palette_colors": 0, "preload": "optional", "stride": 80, "width": 78}
 {"asset": "settings-eq", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "equalizer", "menu": true, "palette_colors": 0, "preload": "optional", "stride": 80, "width": 78}
+{"asset": "apps", "bytes": 49444, "depth": 32, "format": 6280, "height": 87, "id": "homebrew", "menu": false, "palette_colors": 0, "preload": "optional", "stride": 568, "width": 142}
 {"asset": "extensions", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "revola", "menu": true, "palette_colors": 0, "preload": "never", "stride": 80, "width": 78}
+{"asset": "info", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "revola", "menu": true, "palette_colors": 0, "preload": "never", "stride": 80, "width": 78}
+{"asset": "optimize", "bytes": 9708, "depth": 8, "format": 8, "height": 121, "id": "revola", "menu": true, "palette_colors": 0, "preload": "never", "stride": 80, "width": 78}

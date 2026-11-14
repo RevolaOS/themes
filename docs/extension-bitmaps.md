@@ -27,4 +27,7 @@ Regenerate this page with `python3 tools/extension_bitmaps_doc.py`.
 | `compressor` | `settings-compressor` | 78x121 | mask8 | - | yes |
 | `crossfeed` | `settings-crossfeed` | 78x121 | mask8 | - | yes |
 | `equalizer` | `settings-eq` | 78x121 | mask8 | - | yes |
+| `homebrew` | `apps` | 142x87 | bgra8888 | - | no |
 | `revola` | `extensions` | 78x121 | mask8 | - | yes |
+| `revola` | `info` | 78x121 | mask8 | - | yes |
+| `revola` | `optimize` | 78x121 | mask8 | - | yes |

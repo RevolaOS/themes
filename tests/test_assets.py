@@ -678,7 +678,12 @@ class CliTests(unittest.TestCase):
         self.assertEqual(lines[0], "appearance settings-accent 78x121 mask8 0 menu")
         self.assertEqual(len(lines), len(assets.load_catalog()))
         _, out, _ = self.run_cli("catalog", "list", "--extensions", "--group", "revola")
-        self.assertEqual(out, "revola extensions 78x121 mask8 0 menu\n")
+        self.assertEqual(
+            out,
+            "revola extensions 78x121 mask8 0 menu\n"
+            "revola info 78x121 mask8 0 menu\n"
+            "revola optimize 78x121 mask8 0 menu\n",
+        )
         _, out, _ = self.run_cli(
             "catalog", "list", "--extensions", "--format", "indexed8"
         )
