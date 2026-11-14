@@ -145,6 +145,7 @@ GLYPH = {
     "doc_fill": 0xF631,
     "search": 0xF4A5,
     "gamecontroller_fill": 0xF43B,
+    "hammer_fill": 0xF6AA,
     "checkmark": 0xF3FD,
     "chevron_right": 0xF3D3,
     "pause_fill": 0xF478,
@@ -187,6 +188,13 @@ EXTENSION_ICONS = {
     ("compressor", "settings-compressor"): "compressor",
     ("crossfeed", "settings-crossfeed"): "crossfeed",
     ("equalizer", "settings-eq"): "equalizer",
+}
+# Extension pane pictures, coverage at the picture's native size framed like
+# the stock preview of the same size (`FRAMES`), which the iPod draws in the
+# icon tint: `[tint] icon_tint` lists them as id/asset. Homebrew's Apps
+# preview sits beside the Games preview, a controller in the same frame.
+EXTENSION_PICTURES = {
+    ("homebrew", "apps"): ("hammer_fill", (142, 87)),
 }
 # The shapes are drawn in ICON_SIZE pixel coordinates; this scale draws them
 # large enough to be resized down cleanly like the font glyphs.
@@ -3373,6 +3381,16 @@ class Renderer:
             layers = [self.glyph(glyph, box), "-geometry", f"+{x}+{y}", "-composite"]
             self.magick("-size", f"{width}x{height}", "xc:black", *layers, *GRAY8, path)
             self.icons[identifier, asset] = path
+        for (identifier, asset), (glyph, (width, height)) in EXTENSION_PICTURES.items():
+            path = self.out / "art" / icon_folder(identifier) / f"{asset}.png"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            base, center = FRAMES[width, height]
+            box = self.optical_box(asset, glyph, base)
+            x, y = center[0] - box[0] // 2, center[1] - box[1] // 2
+            layers = [self.glyph(glyph, box), "-geometry", f"+{x}+{y}", "-composite"]
+            self.magick("-size", f"{width}x{height}", "xc:black", *layers, *GRAY8, path)
+            self.icons[identifier, asset] = path
+            self.shared(f"{identifier}/{asset}", None)
 
     def theme(self):
         """The theme.toml document and, per appearance, the staged art by name."""

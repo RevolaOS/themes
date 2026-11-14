@@ -155,6 +155,7 @@ icon_tint = [
     "Settings_SoundCheckOn_Image",
     "Settings_VolumeLimit_Image",
     "Speakers_Icon_Image",
+    "homebrew/apps",
 ]
 solid_coverage = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"]
 
@@ -308,6 +309,7 @@ icon_tint = [
     "Settings_SoundCheckOn_Image",
     "Settings_VolumeLimit_Image",
     "Speakers_Icon_Image",
+    "homebrew/apps",
 ]
 solid_coverage = ["Settings_AppleLogo_Image", "Settings_AppleLogoPreview_Image"]
 
