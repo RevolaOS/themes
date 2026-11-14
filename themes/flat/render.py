@@ -524,7 +524,7 @@ PROXIES = {
     "Games_Proxy_Image": "gamecontroller_fill",
 }
 # Small glyphs: name -> (glyph, box, color, crisp). A color that is a tint role
-# (see `style.TINT_ROLES`) renders shared coverage the device draws in that role,
+# (see `style.ROLES`) renders shared coverage the device draws in that role,
 # so the glyph follows the appearance and the accent; any other color (`muted`)
 # renders static art per appearance. Glyphs on highlighted rows (the White
 # variants and the disclosure chevron) take on_accent, which is black for the
@@ -1852,12 +1852,12 @@ class Renderer:
             self.coverage_art(name, glyph, "tint")
             self.shared(name, f"art/tint/{name}.png")
         for name, (glyph, box, role, crisp) in SMALL_GLYPHS.items():
-            if role in style.TINT_ROLES:
+            if role in style.ROLES:
                 center = GLYPH_CENTERS.get(name)
                 self.coverage_art(name, glyph, "tint", box, center, crisp)
                 self.shared(name, f"art/tint/{name}.png", role)
         for name, role in SOLID.items():
-            if role in style.TINT_ROLES:
+            if role in style.ROLES:
                 width, height = self.size(name)
                 relative = f"art/tint/{name}.png"
                 self.magick(
@@ -1880,7 +1880,7 @@ class Renderer:
     def render_static(self, appearance):
         folder = f"art/{appearance}"
         for name, (glyph, box, role, crisp) in SMALL_GLYPHS.items():
-            if role in style.TINT_ROLES:
+            if role in style.ROLES:
                 continue
             center = GLYPH_CENTERS.get(name)
             coverage = self.coverage_art(name, glyph, "work", box, center, crisp)
@@ -1889,7 +1889,7 @@ class Renderer:
             )
             self.entry(appearance, name, f"{folder}/{name}.png")
         for name, role in SOLID.items():
-            if role in style.TINT_ROLES:
+            if role in style.ROLES:
                 continue
             width, height = self.size(name)
             path = self.out / folder / f"{name}.png"
@@ -2930,7 +2930,7 @@ class Renderer:
         Without an appearance, renders the role-tinted bars as shared coverage."""
         s = 4
         for prefix, suffixes, role, inset, radius, side in SLICED:
-            tinted = role in style.TINT_ROLES
+            tinted = role in style.ROLES
             if tinted != (appearance is None):
                 continue
             # Most slices end in _Image; the rental overlay's do not.
@@ -2996,7 +2996,7 @@ class Renderer:
         coverage."""
         top, bottom = PROGRESS_ROWS
         for name, role in PROGRESS_TILES.items():
-            tinted = role in style.TINT_ROLES
+            tinted = role in style.ROLES
             if tinted != (appearance is None):
                 continue
             width, height = self.size(name)
@@ -3022,7 +3022,7 @@ class Renderer:
     def render_knobs(self, appearance, folder):
         s = 4
         for name, (cx, cy), radius, role in KNOBS:
-            tinted = role in style.TINT_ROLES
+            tinted = role in style.ROLES
             if tinted != (appearance is None):
                 continue
             width, height = self.size(name)
@@ -3436,7 +3436,7 @@ class Renderer:
         """role -> [globs from TINT_GLOBS, then the remaining names]; a glob
         must match only bitmaps the role lists."""
         grouped = {}
-        for role in style.TINT_ROLES:
+        for role in style.ROLES:
             names = {name for name, tinted in tints.items() if tinted == role}
             if not names:
                 continue
