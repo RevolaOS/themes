@@ -233,10 +233,14 @@ def source_path(appearance: str, identifier: str, asset: str) -> str:
 # Encoding
 
 
-def encode(path: Path, where: str, record: dict | None) -> bytes:
+def encode(
+    path: Path, where: str, record: dict | None, tint: str | None = None
+) -> bytes:
     """The whole BMap of a PNG: the SDK's menu rule for a catalog record with
     `menu`, else its picture rule at the record's size. Without a record a
-    78 x 121 coverage PNG is a menu bitmap; anything else needs the catalog."""
+    78 x 121 coverage PNG is a menu bitmap; anything else needs the catalog.
+    A picture tinted on the iPod is read as coverage and stored in the
+    placeholder colour `tint`, which the iPod rewrites with the role's."""
     try:
         width, height, rgba = bitmaps.read_png(path.read_bytes())
     except ValueError as error:
@@ -253,7 +257,11 @@ def encode(path: Path, where: str, record: dict | None) -> bytes:
             where,
             f"expected {record['width']}x{record['height']}, got {width}x{height}",
         )
+    if tint is not None and menu:
+        fail(where, "a Settings icon is drawn in the icon tint already; no tint role")
     try:
+        if tint is not None:
+            rgba = bitmaps.tinted_pixels(bitmaps.coverage(rgba), tint)
         encoder = bitmap.encode_mask if menu else bitmap.encode_bmap
         data = encoder(width, height, rgba)
     except ValueError as error:
@@ -295,12 +303,37 @@ def check_collisions(names: list[tuple[str, str]]) -> None:
 KIND_NAMES = {value: name for name, value in rvtfile.EXTENSION_KINDS.items()}
 
 
+def tint_byte(role: str) -> int:
+    """The tint word of a picture drawn in `role`: no coverage bits, the
+    coverage is the art's alpha."""
+    return rvtfile.TINT_ROLE + rvtfile.ROLES.index(role)
+
+
+def tint_role(word: int, where: str) -> str | None:
+    """The role a tint word names, None for RVT_TINT_NONE."""
+    if word == rvtfile.TINT_NONE:
+        return None
+    if not rvtfile.TINT_ROLE <= word < rvtfile.TINT_ROLE + len(rvtfile.ROLES):
+        fail(where, f"unknown tint {word:#x}")
+    return rvtfile.ROLES[word - rvtfile.TINT_ROLE]
+
+
+def tintable(bmap: bytes) -> bool:
+    """Whether the iPod can paint a bitmap in a role: an Indexed8 or BGRA8888
+    picture, not a Settings icon, which the core draws in the icon tint."""
+    fmt = HEADER.unpack_from(bmap)[0]
+    return fmt in (INDEXED8, BGRA8888) and not is_menu(bmap)
+
+
 def encode_table(
     bmaps: dict[tuple[str, str], bytes],
+    tints: dict[tuple[str, str], str] | None = None,
 ) -> tuple[bytes, int, dict[str, int]]:
     """The extension bitmap table of (id, asset) -> whole BMap, ascending by
-    the hashes, each as one lz stream when that is smaller; its bytes, its
-    count and the count per kind name."""
+    the hashes, each as one lz stream when that is smaller, with the tint byte
+    of the role `tints` gives it; its bytes, its count and the count per kind
+    name."""
+    tints = tints or {}
     if len(bmaps) > rvtfile.EXTENSION_BITMAPS_MAX:
         fail(
             FOLDER,
@@ -317,12 +350,14 @@ def encode_table(
         if len(packed) < len(bmap):
             name, data = "bitmap_lz", packed
         counts[name] = counts.get(name, 0) + 1
+        role = tints.get((identifier, asset))
         table += rvtfile.EXTENSION_BITMAP.pack(
             owner_hash(identifier),
             asset_hash(asset),
             rvtfile.EXTENSION_KINDS[name],
             len(data),
             len(bmap),
+            rvtfile.TINT_NONE if role is None else tint_byte(role),
         )
         table += data
         table += bytes(-len(table) % 4)
@@ -384,10 +419,11 @@ def decode_table(
     for _ in range(count):
         if at + rvtfile.EXTENSION_BITMAP_BYTES > len(body):
             fail(where, "truncated extension bitmap header")
-        owner, asset, kind, stored, decoded = rvtfile.EXTENSION_BITMAP.unpack_from(
-            body, at
+        owner, asset, kind, stored, decoded, tint = (
+            rvtfile.EXTENSION_BITMAP.unpack_from(body, at)
         )
         name = f"extension bitmap {owner:#010x}/{asset:#010x}"
+        role = tint_role(tint, f"{where}: {name}")
         if previous is not None and (owner, asset) <= previous:
             fail(where, "extension bitmaps must be sorted by unique owner and asset")
         previous = (owner, asset)
@@ -420,6 +456,8 @@ def decode_table(
             fail(where, f"{name}: bitmap header does not describe its bytes")
         if any(body[end : rvtfile.align(end)]):
             fail(where, f"{name}: padding must be zero")
+        if role is not None and not tintable(bmap):
+            fail(where, f"{name}: tinted, but not an Indexed8 or BGRA8888 picture")
         found.append(
             {
                 "owner": owner,
@@ -427,6 +465,7 @@ def decode_table(
                 "kind": KIND_NAMES[kind],
                 "bytes": stored,
                 "decoded": decoded,
+                "tint": role,
                 "bmap": bmap,
                 **describe(bmap),
             }

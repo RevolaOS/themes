@@ -195,6 +195,7 @@ def describe(result: dict) -> str:
         )
         listed = ", ".join(
             f"{asset['name']} {asset['width']}x{asset['height']} {asset['format']}"
+            + (f" tinted {asset['tint']}" if asset["tint"] else "")
             for asset in pack["extension_bitmaps"]
         )
         lines.append(

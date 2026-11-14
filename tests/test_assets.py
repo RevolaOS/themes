@@ -85,12 +85,14 @@ def record(identifier, asset, width, height, menu=False, fmt=None, colors=0):
 
 def table(*entries):
     """An extension bitmap table from (owner, asset, kind, payload[, decoded
-    [, stored]]); decoded defaults to a Settings icon, stored to the payload."""
+    [, stored[, tint]]]); decoded defaults to a Settings icon, stored to the
+    payload, tint to none."""
     data = b""
     for owner, name, kind, payload, *rest in entries:
         decoded = rest[0] if rest else MENU_BYTES
         stored = rest[1] if len(rest) > 1 else len(payload)
-        data += rvtfile.EXTENSION_BITMAP.pack(owner, name, kind, stored, decoded)
+        tint = rest[2] if len(rest) > 2 else 0
+        data += rvtfile.EXTENSION_BITMAP.pack(owner, name, kind, stored, decoded, tint)
         data += payload + bytes(-len(data + payload) % 4)
     return data
 
@@ -329,6 +331,12 @@ class EncodingTests(unittest.TestCase):
                 table((1, 1, raw, wide + bytes(9680))),
                 1,
             ),
+            "unknown tint 0x81": (table((1, 1, raw, flat, MENU_BYTES, 9708, 0x81)), 1),
+            "unknown tint 0x9": (table((1, 1, raw, flat, MENU_BYTES, 9708, 9)), 1),
+            "tinted, but not an Indexed8 or BGRA8888 picture": (
+                table((1, 1, raw, flat, MENU_BYTES, 9708, 1)),
+                1,
+            ),
             "header does not describe its bytes$": (
                 table((1, 1, raw, flat + bytes(4), MENU_BYTES + 4)),
                 1,
@@ -515,6 +523,104 @@ class CompileTests(unittest.TestCase):
             THEME + "[light]\n",
             extensions,
             **{"light/extensions/third/logo.png": rgba_png(5, 1, bytes(20))},
+        )
+
+    def test_tinted_pictures_carry_coverage_in_a_placeholder(self):
+        extensions = {
+            **assets.load_catalog(),
+            ("third", "logo"): record("third", "logo", 4, 1),
+        }
+        toml = (
+            THEME
+            + '[light.colors]\nicon_tint = "#112233"\n'
+            + '[light.tint]\nicon_tint = ["third/logo"]\ntext = ["homebrew/apps"]\n'
+            + "[dark]\n"
+        )
+        # Alpha coverage over any colour, and gray coverage, both land as the
+        # placeholder colour with the coverage as alpha.
+        logo = rgba_png(
+            4, 1, bytes((9, 9, 9, 0, 9, 9, 9, 128, 9, 9, 9, 255, 9, 9, 9, 64))
+        )
+        apps = rgba_png(142, 87, bytes((255, 255, 255, 255)) * (142 * 87))
+        build = self.theme(
+            toml,
+            extensions,
+            **{
+                "light/extensions/third/logo.png": logo,
+                "light/extensions/homebrew/apps.png": apps,
+            },
+        )
+        self.assertEqual(build.warnings, [])
+        light = build.inspection["appearances"]["light"]
+        found = {a["name"]: a for a in light["extension_bitmaps"]}
+        self.assertEqual(found["third/logo"]["tint"], "icon_tint")
+        self.assertEqual(found["homebrew/apps"]["tint"], "text")
+        bmap = found["third/logo"]["bmap"]
+        self.assertEqual(found["third/logo"]["format"], "indexed8")
+        palette = struct.unpack_from("<I", bmap, 28)[0]
+        entries = [bmap[32 + 4 * i : 36 + 4 * i] for i in range(palette)]
+        self.assertEqual(
+            sorted(entries),
+            sorted(
+                [
+                    bytes(4),
+                    bytes((0x33, 0x22, 0x11, 128)),
+                    bytes((0x33, 0x22, 0x11, 255)),
+                    bytes((0x33, 0x22, 0x11, 64)),
+                ]
+            ),
+        )
+        self.assertEqual(
+            build.report["appearances"]["light"]["extension_tinted"],
+            {"homebrew/apps": "text", "third/logo": "icon_tint"},
+        )
+        self.assertIn(
+            "third/logo 4x1 indexed8 tinted icon_tint",
+            inspector.describe(build.inspection),
+        )
+
+    def test_tint_entries_for_extension_bitmaps_are_checked(self):
+        extensions = {
+            **assets.load_catalog(),
+            ("third", "logo"): record("third", "logo", 4, 1),
+        }
+        colored = rgba_png(4, 1, bytes((255, 0, 0, 255)) * 4)
+        tint = THEME + "[light.tint]\nicon_tint = [%s]\n"
+        self.rejects(
+            r"light.tint.icon_tint: 'Third/logo' is not an extension bitmap <id>/<asset>",
+            tint % '"Third/logo"',
+            extensions,
+        )
+        self.rejects(
+            r"light.tint.icon_tint: third/logo has no light/extensions/third/logo.png",
+            tint % '"third/logo"',
+            extensions,
+        )
+        self.rejects(
+            r"light.tint.text: third/logo is already tinted icon_tint",
+            THEME + '[light.tint]\nicon_tint = ["third/logo"]\ntext = ["third/logo"]\n',
+            extensions,
+            **{"light/extensions/third/logo.png": colored},
+        )
+        self.rejects(
+            r"light.tint.solid_coverage: third/logo takes its coverage from its PNG",
+            THEME
+            + '[light.tint]\nicon_tint = ["third/logo"]\nsolid_coverage = ["third/logo"]\n',
+            extensions,
+            **{"light/extensions/third/logo.png": colored},
+        )
+        self.rejects(
+            r"light/extensions/third/logo.png: tinted art must be grayscale or carry alpha coverage",
+            tint % '"third/logo"',
+            extensions,
+            **{"light/extensions/third/logo.png": colored},
+        )
+        self.rejects(
+            r"light/extensions/appearance/settings-moon.png: a Settings icon is drawn "
+            r"in the icon tint already; no tint role",
+            tint % '"appearance/settings-moon"',
+            extensions,
+            **{MOON_PNG: icon_png()},
         )
 
     def test_unknown_asset_compiles_only_as_a_settings_icon(self):

@@ -147,7 +147,9 @@ class Plan:
             theme.resolve_style(appearance, table)
         )
         self.warnings += warnings
-        self.tinted, warnings = theme.resolve_tints(table, appearance, catalog)
+        self.tinted, self.tinted_bitmaps, warnings = theme.resolve_tints(
+            table, appearance, catalog
+        )
         self.warnings += warnings
         rules, owners, self.notes = theme.resolve_rules(
             table, appearance, catalog, sources
@@ -180,10 +182,20 @@ class Plan:
             self.records[index] = rule
         self.check_tints()
         self.bitmaps: dict[tuple[str, str], bytes] = {}
-        for key, path in assets.find_sources(folder, appearance).items():
+        sources = assets.find_sources(folder, appearance)
+        for key, role in self.tinted_bitmaps.items():
+            if key not in sources:
+                fail(
+                    f"{appearance}.tint.{role}",
+                    f"{key[0]}/{key[1]} has no {assets.source_path(appearance, *key)}",
+                )
+        for key, path in sources.items():
             where = assets.source_path(appearance, *key)
             record = extensions.get(key)
-            self.bitmaps[key] = assets.encode(path, where, record)
+            tint = self.tinted_bitmaps.get(key)
+            self.bitmaps[key] = assets.encode(
+                path, where, record, self.colors["icon_tint"] if tint else None
+            )
             if record is None:
                 self.warnings.append(
                     f"{where}: not in the extension asset catalog, compiled as a "
@@ -291,10 +303,16 @@ class Plan:
             body += bytes(-len(body) % 4)
         if len(body) > self.catalog.max_body():
             fail(self.appearance, "exceeds the largest size the catalog allows")
-        table, self.bitmap_count, bitmap_counts = assets.encode_table(self.bitmaps)
+        table, self.bitmap_count, bitmap_counts = assets.encode_table(
+            self.bitmaps, self.tinted_bitmaps
+        )
         body += table
         self.report["records"] = dict(sorted(counts.items()))
         self.report["extension_bitmaps"] = dict(sorted(bitmap_counts.items()))
+        self.report["extension_tinted"] = {
+            f"{identifier}/{asset}": role
+            for (identifier, asset), role in sorted(self.tinted_bitmaps.items())
+        }
         self.report["palette_reduced"] = self.reduced
         self.report["bytes"] = len(body)
         return bytes(body)
@@ -330,7 +348,7 @@ def compile_theme(
         if appearance in document
     }
     for appearance, plan in plans.items():
-        if reserved and (plan.flags or plan.tinted):
+        if reserved and (plan.flags or plan.tinted or plan.tinted_bitmaps):
             fail(appearance, "the built-in theme carries art only: no flags, no tints")
         others = [p for a, p in plans.items() if a != appearance]
         plan.resolve_from_other(others[0] if others else None)

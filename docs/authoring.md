@@ -56,7 +56,7 @@ yellow = { accent = "#ffcc00", on_accent = "#000000" }
 flat_selection = false
 flat_now_playing = false
 
-[light.tint]            # role = [catalog names or globs]; see Tint
+[light.tint]            # role = [catalog names, globs or id/asset]; see Tint
 icon_tint = ["Settings_EQ_*_Image", "Media_*Proxy_Image"]
 text = ["StatusBar*_Battery_Image_[3-9]", "StatusBar*_Battery_Image_[12][0-9]"]
 darkness_coverage = ["NowPlaying_Blue_Dot_Image"]
@@ -146,7 +146,7 @@ The art must be the bitmap's exact native size; the compiler converts it to the 
 
 ### Tint
 
-`[light.tint]` makes the iPod draw a bitmap in one live colour role, following the picked accent. Each key is a role and lists catalog names, hex ids or globs (`*`, `?`, `[...]`, case-sensitive); a glob that matches nothing is a warning, a name that is not in the catalog an error, and a bitmap may appear under one role only. The coverage comes from your art when there is a PNG (its alpha channel when it has one, otherwise its gray level; coloured opaque art is rejected) and from the stock bitmap when there is none. Tinted art with more coverage levels than the palette holds is reduced on the coverage alone, so the result is the same whatever colour it is drawn in.
+`[light.tint]` makes the iPod draw a bitmap in one live colour role, following the picked accent. Each key is a role and lists catalog names, hex ids or globs (`*`, `?`, `[...]`, case-sensitive), or extension bitmaps as `<id>/<asset>` ([below](#extension-bitmaps)); a glob that matches nothing is a warning, a name that is not in the catalog an error, and a bitmap may appear under one role only. The coverage comes from your art when there is a PNG (its alpha channel when it has one, otherwise its gray level; coloured opaque art is rejected) and from the stock bitmap when there is none. Tinted art with more coverage levels than the palette holds is reduced on the coverage alone, so the result is the same whatever colour it is drawn in.
 
 | Format | Needs art | How it is tinted |
 |---|---|---|
@@ -222,6 +222,8 @@ python3 -m rvt catalog show appearance/settings-moon
 | Settings icon (`menu` in the catalog) | Exactly 78 x 121; when any pixel is translucent the alpha channel is the coverage, otherwise opaque grayscale whose gray level is the coverage; coloured opaque art is rejected | A Mask8 coverage mask drawn in the icon tint |
 | Any other bitmap | Exactly the catalog's width and height, any RGBA | Indexed8 with a palette when the art has at most 256 colours, else BGRA8888; at most 65,536 bytes with its header |
 
+A picture follows the accent when a `[tint]` role lists it as `<id>/<asset>` (`revola/<asset>` for the core's): `icon_tint = ["homebrew/apps"]` reads `extensions/homebrew/apps.png` as coverage like a Settings icon (alpha, else gray level; coloured opaque art is rejected) and the iPod draws it in that role. Such a bitmap needs its PNG in every appearance that lists it, takes its coverage from the art only (no `darkness_coverage` or `solid_coverage`), and cannot be a Settings icon, which the iPod draws in the icon tint already.
+
 An (id, asset) the catalog does not know compiles only as a Settings icon, when the PNG is 78 x 121 coverage, with a warning; any other size is an error that asks for `--extension`. The iPod ignores a bitmap no installed extension asks for. Two bitmaps whose hashed names collide are rejected; a theme carries at most 64 extension bitmaps per appearance.
 
 The art box of a Settings icon is rows 12..62, centred on column 39; the rows from 79 down hold the reflection on the stock icons. An icon with nothing below row 78 while `flat_icons` ([Rendering](#rendering)) is off is a warning: the icons the theme does not replace would keep their reflection next to one without. Light and dark icons are both coverage, so a theme that draws one shape writes the PNG into both folders.
@@ -233,7 +235,7 @@ The art box of a Settings icon is rows 12..62, centred on column 39; the rows fr
 | `id` | `[a-z0-9][a-z0-9_-]{0,30}`; `classic` is reserved |
 | `name` | at most 47 UTF-8 bytes, no control characters |
 | Art size | the bitmap's native width and height, nothing else; Settings icons 78 x 121, other extension bitmaps the catalog's size |
-| Extension bitmaps | at most 64 per appearance, each at most 65,536 bytes encoded; ids `[a-z][a-z0-9_-]{0,31}`, assets `[a-z0-9_-]{1,31}`, no two with equal hashes |
+| Extension bitmaps | at most 64 per appearance, each at most 65,536 bytes encoded; ids `[a-z][a-z0-9_-]{0,31}`, assets `[a-z0-9_-]{1,31}`, no two with equal hashes; a tinted one is a picture, not a Settings icon |
 | Art files | non-interlaced PNG with 8-bit channels or a palette, at most 16 MiB; plain file names inside the folder, no symlinks that leave it |
 | `theme.toml`, rule files | at most 256 KiB each |
 | Palette per bitmap | the native palette's entries (see [Bitmaps](bitmaps.md)); more colours are reduced with a warning |

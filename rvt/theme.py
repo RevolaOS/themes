@@ -8,7 +8,7 @@ import re
 import tomllib
 from pathlib import Path
 
-from rvt import bitmaps, derive, rvtfile, style
+from rvt import assets, bitmaps, derive, rvtfile, style
 from rvt.catalog import Catalog
 from rvt.errors import fail
 
@@ -215,19 +215,35 @@ def matching(pattern: str, catalog: Catalog, where: str) -> list[int]:
     ]
 
 
+def extension_key(pattern: str, where: str) -> tuple[str, str] | None:
+    """(id, asset) when a tint entry names an extension bitmap as `id/asset`
+    (the core's as `revola/asset`); None for a catalog name, hex id or glob,
+    which never contain a slash."""
+    if not isinstance(pattern, str) or "/" not in pattern:
+        return None
+    identifier, _, asset = pattern.partition("/")
+    if not assets.ID_PATTERN.fullmatch(
+        identifier
+    ) or not assets.ASSET_PATTERN.fullmatch(asset):
+        fail(where, f"{pattern!r} is not an extension bitmap <id>/<asset>")
+    return identifier, asset
+
+
 def resolve_tints(
     table: dict, appearance: str, catalog: Catalog
-) -> tuple[dict[int, tuple[str, str]], list[str]]:
-    """Catalog index -> (role, coverage) from [<appearance>.tint], and warnings
-    about globs that match nothing: role = [names or globs] per role, a
-    `darkness_coverage` list naming tinted bitmaps whose coverage is their
-    darkness and a `solid_coverage` list naming those whose coverage is full
-    from the floor up."""
+) -> tuple[dict[int, tuple[str, str]], dict[tuple[str, str], str], list[str]]:
+    """Catalog index -> (role, coverage) and extension (id, asset) -> role from
+    [<appearance>.tint], and warnings about globs that match nothing: role =
+    [names or globs] per role, a `darkness_coverage` list naming tinted bitmaps
+    whose coverage is their darkness and a `solid_coverage` list naming those
+    whose coverage is full from the floor up. An extension bitmap is named
+    `id/asset` and takes its coverage from its PNG's alpha only."""
     where = f"{appearance}.tint"
     tints = table.get("tint", {})
     if not isinstance(tints, dict):
         fail(where, "expected a table")
     tinted: dict[int, tuple[str, str]] = {}
+    extensions: dict[tuple[str, str], str] = {}
     warnings: list[str] = []
     for role, patterns in tints.items():
         at = f"{where}.{role}"
@@ -236,6 +252,14 @@ def resolve_tints(
         if not isinstance(patterns, list):
             fail(at, "expected a list of catalog names, hex ids or globs")
         for pattern in patterns:
+            key = extension_key(pattern, at)
+            if key is not None:
+                if role in COVERAGE_LISTS:
+                    fail(at, f"{pattern} takes its coverage from its PNG's alpha")
+                if key in extensions:
+                    fail(at, f"{pattern} is already tinted {extensions[key]}")
+                extensions[key] = role
+                continue
             found = matching(pattern, catalog, at)
             if not found:
                 warnings.append(f"{at}: {pattern!r} matches no catalog bitmap")
@@ -265,7 +289,7 @@ def resolve_tints(
                         at, f"{name} already takes its coverage from {tinted[index][1]}"
                     )
                 tinted[index] = (tinted[index][0], coverage)
-    return tinted, warnings
+    return tinted, extensions, warnings
 
 
 def resolve_rules(

@@ -84,11 +84,11 @@ class HeaderCopyTests(unittest.TestCase):
                 format.EXTENSION_BITMAPS_MAX,
                 format.EXTENSION_BITMAP_MAX_BYTES,
             ),
-            (20, {"bitmap": 1, "bitmap_lz": 2}, 28, 64, 65536),
+            (24, {"bitmap": 1, "bitmap_lz": 2}, 28, 64, 65536),
         )
         self.assertEqual(format.RELIGHT_FIELDS[:2], ("t_zero", "t_full"))
         self.assertEqual(format.SCRATCH_PIXELS, 3840)
-        self.assertEqual(format.VERSION, 2)
+        self.assertEqual(format.VERSION, 3)
         self.assertEqual(format.VALUES["RVT_EXTENSION_KINDS"], 3)
         self.assertEqual(format.VALUES["RVT_KIND_PIXELS_LZ"], 5)
         self.assertEqual(format.fnv1a(b""), 2166136261)

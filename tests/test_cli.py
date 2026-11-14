@@ -120,6 +120,7 @@ class CliTests(unittest.TestCase):
                 "bytes",
                 "contrast",
                 "extension_bitmaps",
+                "extension_tinted",
                 "palette_reduced",
                 "records",
             ],

@@ -21,7 +21,7 @@
 
 Warnings name a bitmap whose PNG has more colours than its native palette (reduced to fit; the count and the palette size are in `report.json` under `palette_reduced`), a text and background pair the theme colours that falls below 4.5:1 (once per pair, and once per accent for the pairs an accent changes), a tint glob that matches no bitmap, a Settings icon with nothing below its art box while `flat_icons` is off, and an extension bitmap the extension asset catalog does not list (compiled as a Settings icon).
 
-`report.json` has the theme's id, name, author and version and, per appearance, the contrast of every text and background pair for Theme Default and each accent (`contrast`), the accents that use the built-in colours (`accents_builtin`), the record count per kind (`records`), the extension bitmap count per kind (`extension_bitmaps`), the palette reductions (`palette_reduced`) and the appearance's bytes. It is written with sorted keys and is the same for the same input.
+`report.json` has the theme's id, name, author and version and, per appearance, the contrast of every text and background pair for Theme Default and each accent (`contrast`), the accents that use the built-in colours (`accents_builtin`), the record count per kind (`records`), the extension bitmap count per kind (`extension_bitmaps`), the tinted extension bitmaps with their roles (`extension_tinted`), the palette reductions (`palette_reduced`) and the appearance's bytes. It is written with sorted keys and is the same for the same input.
 
 ## Layout
 
